@@ -50,7 +50,7 @@ impl Tool for SearchMemoryTool {
                         "description": "Semantic search query for long-term memory."
                     },
                     "limit": {
-                        "type": "integer",
+                        "type": ["integer", "null"],
                         "minimum": 1,
                         "maximum": 20,
                         "description": "Maximum memories to return. Defaults to 5."

@@ -55,7 +55,7 @@ impl Tool for DumpLogcatTool {
                 "type": "object",
                 "properties": {
                     "annotation": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "description": "Optional short context string describing why this logcat \
                          dump was taken. Will be included in the filename for identification."
                     }

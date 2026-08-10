@@ -69,12 +69,12 @@ impl Tool for WeatherTool {
                         "description": "The kind of weather information needed. Use current for immediate weather, forecast for normal forecast ranges without time, historical for past weather with time, and alerts for warnings/advisories."
                     },
                     "time": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "description": "Optional ISO 8601 date or datetime for historical past-weather requests only, e.g. 2026-06-02T15:00:00Z or 2026-06-02. Omit for current, forecast, and alerts. Future times are unsupported."
                     },
                     "units": {
-                        "type": "string",
-                        "enum": ["fahrenheit", "celsius"],
+                        "type": ["string", "null"],
+                        "enum": ["fahrenheit", "celsius", null],
                         "description": "Optional temperature units for temperature, feels_like, high, and low fields. Defaults to fahrenheit unless the user asks for Celsius/metric."
                     }
                 },

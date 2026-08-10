@@ -93,11 +93,11 @@ impl Tool for NearbySearchTool {
                         "description": "Longitude of the search center. Required; use the current request longitude from system/status context when available."
                     },
                     "radius_meters": {
-                        "type": "number",
+                        "type": ["number", "null"],
                         "description": "Optional search radius in meters. Defaults to 1000 if omitted or non-positive."
                     },
                     "query": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "description": "Optional place/business/category query such as coffee, restaurant, park, pharmacy, gas station, or grocery."
                     }
                 },

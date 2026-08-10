@@ -24,8 +24,7 @@ impl RememberTool {
 #[derive(Debug, Deserialize)]
 pub struct RememberArgs {
     pub text: String,
-    #[serde(default)]
-    pub kind: MemoryKind,
+    pub kind: Option<MemoryKind>,
     pub importance: Option<f32>,
 }
 
@@ -48,12 +47,12 @@ impl Tool for RememberTool {
                         "description": "The durable memory to store as a concise standalone statement."
                     },
                     "kind": {
-                        "type": "string",
-                        "enum": ["preference", "fact", "project", "instruction", "relationship", "other"],
+                        "type": ["string", "null"],
+                        "enum": ["preference", "fact", "project", "instruction", "relationship", "other", null],
                         "description": "The type of memory. Defaults to other."
                     },
                     "importance": {
-                        "type": "number",
+                        "type": ["number", "null"],
                         "minimum": 0,
                         "maximum": 1,
                         "description": "Memory importance from 0.0 to 1.0. Defaults to 0.5."
@@ -72,7 +71,7 @@ impl Tool for RememberTool {
         let importance = args.importance.unwrap_or(0.5).clamp(0.0, 1.0);
 
         self.memory
-            .remember(text.text, args.kind, importance)
+            .remember(text.text, args.kind.unwrap_or_default(), importance)
             .await
             .map_err(Into::into)
     }

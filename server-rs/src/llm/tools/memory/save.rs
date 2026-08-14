@@ -47,12 +47,12 @@ impl Tool for RememberTool {
                         "description": "The durable memory to store as a concise standalone statement."
                     },
                     "kind": {
-                        "type": ["string", "null"],
-                        "enum": ["preference", "fact", "project", "instruction", "relationship", "other", null],
+                        "type": "string",
+                        "enum": ["preference", "fact", "project", "instruction", "relationship", "other"],
                         "description": "The type of memory. Defaults to other."
                     },
                     "importance": {
-                        "type": ["number", "null"],
+                        "type": "number",
                         "minimum": 0,
                         "maximum": 1,
                         "description": "Memory importance from 0.0 to 1.0. Defaults to 0.5."

@@ -52,12 +52,12 @@ impl Tool for UpdateMemoryTool {
                         "description": "The replacement memory text as a concise standalone statement."
                     },
                     "kind": {
-                        "type": ["string", "null"],
-                        "enum": ["preference", "fact", "project", "instruction", "relationship", "other", null],
+                        "type": "string",
+                        "enum": ["preference", "fact", "project", "instruction", "relationship", "other"],
                         "description": "Optional replacement memory kind."
                     },
                     "importance": {
-                        "type": ["number", "null"],
+                        "type": "number",
                         "minimum": 0,
                         "maximum": 1,
                         "description": "Optional replacement importance from 0.0 to 1.0."

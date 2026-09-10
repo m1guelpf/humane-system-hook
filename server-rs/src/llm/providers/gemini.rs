@@ -26,8 +26,9 @@ impl GeminiProvider {
         let client = providers::gemini::Client::builder()
             .api_key(&api_key)
             .http_client(http_client.clone())
-            .build()?
-            .interactions_api();
+            .build()?;
+
+        let client = client.interactions_api();
 
         info!("Gemini agent ready (model={})", llm_config.model);
         let gemini_google_search = llm_config.web_search;
@@ -40,14 +41,16 @@ impl GeminiProvider {
             http_client,
             memory,
             move |builder| {
-                if gemini_google_search {
+                let additional_params = if gemini_google_search {
                     info!("Gemini Google Search grounding enabled");
-                    builder.additional_params(serde_json::json!({
+                    serde_json::json!({
                         "tools": [{ "type": "google_search" }],
-                    }))
+                    })
                 } else {
-                    builder
-                }
+                    serde_json::json!({})
+                };
+
+                builder.additional_params(additional_params)
             },
         )
         .await

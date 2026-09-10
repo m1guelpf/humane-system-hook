@@ -1,28 +1,24 @@
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use prost::Message as _;
 use reqwest::StatusCode;
-use serde::Deserialize;
 use serde_json::{json, Value};
 use tonic::{Request, Response, Status};
 use tracing::{info, warn};
 
 use super::envelope::unwrap_plaintext_data;
+use crate::external::beacondb::{BeaconDbClient, BeaconResponse};
 use crate::proto::{aibus::*, common::encryption::EncryptedData};
 
-const USER_AGENT: &str = concat!(
-    "PenumbraOS/",
-    env!("PENUMBRA_VERSION"),
-    " (+https://github.com/PenumbraOS/humane-system-hook)"
-);
-
 pub struct GeoLocateHandler {
-    http: reqwest::Client,
+    beacondb: BeaconDbClient,
 }
 
 impl GeoLocateHandler {
     pub fn new(http: reqwest::Client) -> Self {
-        Self { http }
+        Self {
+            beacondb: BeaconDbClient::new(http),
+        }
     }
 
     pub async fn encrypted_geo_locate(
@@ -40,7 +36,7 @@ impl GeoLocateHandler {
             ">>> EncryptedGeoLocate (beaconDB)"
         );
 
-        let response = geolocate_response(self.locate(&request).await);
+        let response = geolocate_response(self.beacondb.locate(&beacon_request(&request)).await);
         info!(
             status = response.status,
             elapsed_ms = started.elapsed().as_millis(),
@@ -53,19 +49,6 @@ impl GeoLocateHandler {
                 response.encode_to_vec(),
             )),
         }))
-    }
-
-    async fn locate(&self, request: &GeoLocateRequest) -> Result<BeaconResponse, reqwest::Error> {
-        self.http
-            .post("https://api.beacondb.net/v1/geolocate")
-            .header(reqwest::header::USER_AGENT, USER_AGENT)
-            .timeout(Duration::from_secs(3))
-            .json(&beacon_request(request))
-            .send()
-            .await?
-            .error_for_status()?
-            .json()
-            .await
     }
 }
 
@@ -141,18 +124,6 @@ fn geolocate_response(result: Result<BeaconResponse, reqwest::Error>) -> GeoLoca
             }
         }
     }
-}
-
-#[derive(Deserialize)]
-struct BeaconResponse {
-    location: BeaconLocation,
-    accuracy: f64,
-}
-
-#[derive(Deserialize)]
-struct BeaconLocation {
-    lat: f64,
-    lng: f64,
 }
 
 #[cfg(test)]
@@ -266,20 +237,6 @@ mod tests {
             let response = geolocate_response(Ok(serde_json::from_str(body).unwrap()));
             assert_eq!(response.status, 3, "{body}");
             assert!(response.location.is_none());
-        }
-    }
-
-    #[test]
-    fn rejects_malformed_response_json() {
-        for body in [
-            "not JSON",
-            "{}",
-            r#"{"location":{"lat":0,"lng":0},"accuracy":1e999}"#,
-        ] {
-            assert!(
-                serde_json::from_str::<BeaconResponse>(body).is_err(),
-                "{body}"
-            );
         }
     }
 
